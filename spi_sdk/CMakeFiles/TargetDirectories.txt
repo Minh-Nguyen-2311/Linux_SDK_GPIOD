@@ -1,0 +1,4 @@
+/home/minh/Downloads/spi_sdk/CMakeFiles/spi_sdk_lib.dir
+/home/minh/Downloads/spi_sdk/CMakeFiles/spi_sdk_exe.dir
+/home/minh/Downloads/spi_sdk/CMakeFiles/edit_cache.dir
+/home/minh/Downloads/spi_sdk/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libspi_sdk_lib.a CMakeFiles/spi_sdk_lib.dir/src/spi_bus.cpp.o CMakeFiles/spi_sdk_lib.dir/src/spi_device.cpp.o
+/usr/bin/ranlib libspi_sdk_lib.a

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libuart_sdk_lib.a CMakeFiles/uart_sdk_lib.dir/src/uart_bus.cpp.o CMakeFiles/uart_sdk_lib.dir/src/uart_device.cpp.o
+/usr/bin/ranlib libuart_sdk_lib.a

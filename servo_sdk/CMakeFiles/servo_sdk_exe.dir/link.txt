@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/servo_sdk_exe.dir/link.d CMakeFiles/servo_sdk_exe.dir/test/main.cpp.o -o servo_sdk_exe  libservo_sdk_lib.a -lgpiod

@@ -1,0 +1,20 @@
+[
+{
+  "directory": "/home/minh/Downloads/servo_sdk/build",
+  "command": "/usr/bin/aarch64-linux-gnu-g++  -I/home/minh/Downloads/servo_sdk/include -g -std=gnu++17 -o CMakeFiles/servo_sdk_lib.dir/src/pid.cpp.o -c /home/minh/Downloads/servo_sdk/src/pid.cpp",
+  "file": "/home/minh/Downloads/servo_sdk/src/pid.cpp",
+  "output": "CMakeFiles/servo_sdk_lib.dir/src/pid.cpp.o"
+},
+{
+  "directory": "/home/minh/Downloads/servo_sdk/build",
+  "command": "/usr/bin/aarch64-linux-gnu-g++  -I/home/minh/Downloads/servo_sdk/include -g -std=gnu++17 -o CMakeFiles/servo_sdk_lib.dir/src/servo_driver.cpp.o -c /home/minh/Downloads/servo_sdk/src/servo_driver.cpp",
+  "file": "/home/minh/Downloads/servo_sdk/src/servo_driver.cpp",
+  "output": "CMakeFiles/servo_sdk_lib.dir/src/servo_driver.cpp.o"
+},
+{
+  "directory": "/home/minh/Downloads/servo_sdk/build",
+  "command": "/usr/bin/aarch64-linux-gnu-g++  -I/home/minh/Downloads/servo_sdk/include -g -std=gnu++17 -o CMakeFiles/servo_sdk_exe.dir/test/main.cpp.o -c /home/minh/Downloads/servo_sdk/test/main.cpp",
+  "file": "/home/minh/Downloads/servo_sdk/test/main.cpp",
+  "output": "CMakeFiles/servo_sdk_exe.dir/test/main.cpp.o"
+}
+]

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libpwm_sdk_lib.a CMakeFiles/pwm_sdk_lib.dir/src/pwm_bus.cpp.o CMakeFiles/pwm_sdk_lib.dir/src/servo_180.cpp.o CMakeFiles/pwm_sdk_lib.dir/src/servo_360.cpp.o
+/usr/bin/ranlib libpwm_sdk_lib.a

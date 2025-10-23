@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/pwm_sdk_exe.dir/link.d CMakeFiles/pwm_sdk_exe.dir/test/main.cpp.o -o pwm_sdk_exe  libpwm_sdk_lib.a -lgpiod

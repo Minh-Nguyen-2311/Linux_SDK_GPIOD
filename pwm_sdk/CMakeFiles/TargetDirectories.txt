@@ -1,0 +1,4 @@
+/home/minh/Downloads/pwm_sdk/CMakeFiles/pwm_sdk_lib.dir
+/home/minh/Downloads/pwm_sdk/CMakeFiles/pwm_sdk_exe.dir
+/home/minh/Downloads/pwm_sdk/CMakeFiles/edit_cache.dir
+/home/minh/Downloads/pwm_sdk/CMakeFiles/rebuild_cache.dir

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libservo_sdk_lib.a CMakeFiles/servo_sdk_lib.dir/src/pid.cpp.o CMakeFiles/servo_sdk_lib.dir/src/servo_driver.cpp.o
-/usr/bin/ranlib libservo_sdk_lib.a

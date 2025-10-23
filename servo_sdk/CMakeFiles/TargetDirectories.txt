@@ -1,4 +1,0 @@
-/home/minh/Downloads/servo_sdk/CMakeFiles/servo_sdk_lib.dir
-/home/minh/Downloads/servo_sdk/CMakeFiles/servo_sdk_exe.dir
-/home/minh/Downloads/servo_sdk/CMakeFiles/edit_cache.dir
-/home/minh/Downloads/servo_sdk/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libvision_sdk_lib.a CMakeFiles/vision_sdk_lib.dir/src/camera_manager.cpp.o CMakeFiles/vision_sdk_lib.dir/src/object_detector.cpp.o CMakeFiles/vision_sdk_lib.dir/src/object_tracker.cpp.o CMakeFiles/vision_sdk_lib.dir/src/vision_pipeline.cpp.o
+/usr/bin/ranlib libvision_sdk_lib.a

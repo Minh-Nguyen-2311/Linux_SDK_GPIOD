@@ -10,14 +10,14 @@ int main() {
     }
 
     cv::Mat frame;
-    while (true) {
+    while (1) 
+    {
         float x, y;
         if (!vision.processFrame(x, y, frame)) continue;
-
         std::cout << "Target at (" << x << ", " << y << ")\n";
         cv::imshow("Vision SDK Demo", frame);
-        if (cv::waitKey(10) == 27) break;
+        if(cv::waitKey(1) == 27)
+            break;
     }
-
     return 0;
 }

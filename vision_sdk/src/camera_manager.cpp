@@ -12,7 +12,7 @@ bool CameraManager::open(int index, int width, int height) {
     }
     cap.set(cv::CAP_PROP_FRAME_WIDTH, width);
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, height);
-    cap.set(cv::CAP_PROP_FPS, 15);
+    cap.set(cv::CAP_PROP_FPS, 30);
     cap.set(cv::CAP_PROP_BUFFERSIZE, 1);
     std::cout << "Camera opened: " << width << "x" << height << std::endl;
     return true;

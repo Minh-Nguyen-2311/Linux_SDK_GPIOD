@@ -2,6 +2,8 @@
 #include "camera_manager.hpp"
 #include "object_detector.hpp"
 #include "object_tracker.hpp"
+#include <iostream>
+#include <chrono>
 
 class VisionPipeline {
 public:
@@ -14,4 +16,9 @@ private:
     ObjectTracker tracker;
     bool tracking;
     cv::Rect target;
+
+    int frame_count = 0;
+    float fps = 0.0;
+
+    void updateFPS();
 };

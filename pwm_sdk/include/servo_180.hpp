@@ -11,7 +11,7 @@ public:
     bool init(const char* chipname,
               unsigned int pwm0_line);
 
-    void release();
+    void release() override;
     void set_target_angle(float angle);
 };
 

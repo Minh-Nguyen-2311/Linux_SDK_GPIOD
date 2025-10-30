@@ -16,8 +16,8 @@ PWM_Bus::~PWM_Bus()
 }
 
 bool PWM_Bus::init(const char* chipname,
-            unsigned int pwm0_line, unsigned int pwm1_line,
-            unsigned int delay_us)
+            unsigned int pwm0_line,
+            unsigned int pwm1_line)
 {
     int pwm_out, pwm_in;
     m_chip = gpiod_chip_open_by_name(chipname);
@@ -33,24 +33,27 @@ bool PWM_Bus::init(const char* chipname,
     }
 
     pwm_out = gpiod_line_request_output(m_pwm0, "pwm_out", 1);
-    pwm_in = gpiod_line_request_output(m_pwm1, "pwm_in", 1);
-    if(!pwm_out && !pwm_in){
+    //pwm_in = gpiod_line_request_input(m_pwm1, "pwm_in");
+    if(pwm_out < 0){
         std::cout << "PWM GPIO request output fail\n";
         return false;
     }
+
+    if(gpiod_line_request_both_edges_events(m_pwm1, "pwm_in") < 0){
+        std::cout << "PWM GPIO request edge events fail\n";
+        return false;
+    } 
     return true;
 }
 
 void PWM_Bus::release()
 {
-    if (m_pwm0) {
-        gpiod_line_release(m_pwm0);
-        m_pwm0 = nullptr;
-    }
-    if (m_pwm1) {
-        gpiod_line_release(m_pwm1);
-        m_pwm1 = nullptr;
-    }
+    if (m_pwm0) gpiod_line_release(m_pwm0);
+    if (m_pwm1) gpiod_line_release(m_pwm1);
+    if (m_chip) gpiod_chip_close(m_chip);
+
+    m_chip = nullptr;
+    m_pwm0 = m_pwm1 = nullptr;
 }
 
 void PWM_Bus::PWM_Out(float duty)
@@ -63,7 +66,7 @@ void PWM_Bus::PWM_Out(float duty)
     auto low_time = std::chrono::microseconds((int)((period_ms - duty) * 1000));
 
     // Gửi 20 xung PWM để servo cập nhật vị trí
-    for (int i = 0; i < 20; ++i) {
+    for (int i = 0; i < (int)period_ms; ++i) {
         gpiod_line_set_value(m_pwm0, 1);
         std::this_thread::sleep_for(high_time);
         gpiod_line_set_value(m_pwm0, 0);

@@ -5,20 +5,20 @@
 
 int main(void)
 {
-    float prev_angle = 0.0f;
-    float curr_angle = 0.01f;
+    // float prev_angle = 0.0f;
+    float curr_angle = 100.0f;
 
-    Servo180 servo180;
+    // Servo180 servo180;
+    // servo180.init("gpiochip0", 12);
 
-    servo180.init("gpiochip0", 12);
+    Servo360 servo360;
+    servo360.init("gpiochip0", 14, 12);
     
-    while(1){
-        std::cout << "Enter desired angle: ";
-        std::cin >> curr_angle;
-        if(prev_angle != curr_angle){
-            servo180.set_target_angle(curr_angle);
-            prev_angle = curr_angle;
-        }
+    while(1)
+    {
+        // std::cout << "Enter desired angle: ";
+        // std::cin >> curr_angle;
+        servo360.updatePIDWithFeedback(curr_angle, 0.01);
     }
     return 0;
 }

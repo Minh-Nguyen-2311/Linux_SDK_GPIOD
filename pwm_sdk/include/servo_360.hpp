@@ -9,24 +9,24 @@ public:
     ~Servo360();
 
     bool init(const char* chipname,
-              unsigned int pwm0_line, unsigned int pwm1_line,
-              unsigned int delay_us) override;
+            unsigned int pwm0_line,
+            unsigned int pwm1_line) override;
 
     void release() override;
 
-    void setTargetAngle(float target_deg);      // mục tiêu góc (0–360)
-    void updatePIDWithFeedback(float dt);       // cập nhật PID với feedback
+    void updatePIDWithFeedback(float target, float dt);       // cập nhật PID với feedback
     float readFeedbackAngle();                  // đọc góc hiện tại từ PWM feedback
     
 private:
     // PID parameters
-    float Kp, Ki, Kd;
-    float targetAngle, currentAngle;
+    float Kp = 1.0f, Ki = 0.001f, Kd = 0.01f;
+    float currentAngle = 0.0f, filteredAngle = 0.0f, multiRevAngle = 0.0f;
     float prevError, integral;
 
     // Servo calibration
-    float center_us{1500.0f};
-    float range_us{220.0f};
+    float lastAngle = 0.0f;
+
+    float countRev = 0;
 
     std::chrono::steady_clock::time_point lastUpdate;
 };

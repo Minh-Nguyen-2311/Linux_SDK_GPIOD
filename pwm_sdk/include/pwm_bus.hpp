@@ -10,8 +10,8 @@ public:
     ~PWM_Bus();
 
     virtual bool init(const char* chipname,
-            unsigned int pwm0_line, unsigned int pwm1_line,
-            unsigned int delay_us);
+            unsigned int pwm0_line,
+            unsigned int pwm1_line);
     virtual void release();
 
     void PWM_Out(float duty);

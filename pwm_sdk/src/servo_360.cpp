@@ -1,6 +1,7 @@
 #include "servo_360.hpp"
 #include <cmath>
 #include <thread>
+#include <algorithm>
 
 Servo360::Servo360(){}
 
@@ -9,70 +10,100 @@ Servo360::~Servo360()
     Servo360::release(); 
 }
 
+bool Servo360::init(const char* chipname,
+            unsigned int pwm0_line,
+            unsigned int pwm1_line)
+{
+    if (!PWM_Bus::init(chipname, pwm0_line, pwm1_line)) {
+        std::cerr << "Parallax Servo failed to initialize PWM bus\n";
+        return false;
+    }
+    std::cout << " Parallax Servo initialized (PWM_Output=" << pwm0_line
+              << ", PWM_Input=" << pwm1_line << ")\n";
+    return true;
+}
+
 void Servo360::release()
 {
     PWM_Bus::release();
 }
 
-void Servo360::setTargetAngle(float target_deg) {
-    if (target_deg < 0) target_deg = 0;
-    if (target_deg > 360) target_deg = 360;
-    targetAngle = target_deg;
-}
-
 float Servo360::readFeedbackAngle() {
-    // đo PWM feedback bằng libgpiod
-    // - ghi thời gian rising edge và falling edge
-    // - tính duty cycle = high_time / period_time
-
-    struct timespec ts_rise{}, ts_fall{};
-    bool last = gpiod_line_get_value(m_pwm1);
-    bool rising_found = false, falling_found = false;
-
-    // chờ rising edge
-    for (;;) {
-        bool val = gpiod_line_get_value(m_pwm1);
-        if (!last && val) {
-            clock_gettime(CLOCK_MONOTONIC, &ts_rise);
-            rising_found = true;
+    struct gpiod_line_event evt;
+    struct timespec ts_rise1, ts_fall, ts_rise2;
+    
+    //Wait for rising edge 1
+    while(true)
+    {
+        if(gpiod_line_event_wait(m_pwm1, nullptr) != 1) continue;
+        if(gpiod_line_event_read(m_pwm1, &evt) == 0 && evt.event_type == GPIOD_LINE_EVENT_RISING_EDGE)
+        {
+            ts_rise1 = evt.ts;
+            break;
         }
-        last = val;
-        if (rising_found) break;
     }
 
-    // chờ falling edge
-    for (;;) {
-        bool val = gpiod_line_get_value(m_pwm1);
-        if (last && !val) {
-            clock_gettime(CLOCK_MONOTONIC, &ts_fall);
-            falling_found = true;
+    //Wait for falling edge
+    while(true)
+    {
+        if(gpiod_line_event_wait(m_pwm1, nullptr) != 1) continue;
+        if(gpiod_line_event_read(m_pwm1, &evt) == 0 && evt.event_type == GPIOD_LINE_EVENT_FALLING_EDGE)
+        {
+            ts_fall = evt.ts;
+            break;
         }
-        last = val;
-        if (falling_found) break;
     }
 
-    double rise_t = ts_rise.tv_sec + ts_rise.tv_nsec / 1e9;
-    double fall_t = ts_fall.tv_sec + ts_fall.tv_nsec / 1e9;
-    double high_time = fall_t - rise_t;          // giây
-    double period = 1.0 / 910.0;                 // feedback PWM ~910 Hz
-    float duty = (float)((high_time / period) * 100.0); // %
+    //Wait for rising edge 1
+    while(true)
+    {
+        if(gpiod_line_event_wait(m_pwm1, nullptr) != 1) continue;
+        if(gpiod_line_event_read(m_pwm1, &evt) == 0 && evt.event_type == GPIOD_LINE_EVENT_RISING_EDGE)
+        {
+            ts_rise2 = evt.ts;
+            break;
+        }
+    }
 
-    // clamp duty
-    if (duty < 2.9f) duty = 2.9f;
-    if (duty > 97.1f) duty = 97.1f;
+    double rise1 = ts_rise1.tv_sec + ts_rise1.tv_nsec/1e9;
+    
+    double rise2 = ts_rise2.tv_sec +ts_rise2.tv_nsec/1e9;
+
+    double fall = ts_fall.tv_sec +ts_fall.tv_nsec/1e9;
+
+
+    double highTime = fall - rise1;
+    std::cout << "highTime: " << highTime << "\n";
+    double period = rise2 - rise1;
+    std::cout << "period: " << period << "\n";
+
+    if(period <= 0) period = 1.0/910.0;
+    double duty = (highTime / period) * 100.0;
+    std::cout << "Duty: " << duty << "\n";
 
     // map duty → angle
-    currentAngle = ((duty - 2.9f) / (97.1f - 2.9f)) * 360.0f;
-    return currentAngle;
+    currentAngle = (float)((duty - 2.9f) * 360.0f/ (97.1f - 2.9f));
+    std::cout << "currentAngle: " << currentAngle << "\n";
+    
+    // low-pass filter
+    filteredAngle = 0.7 * filteredAngle + 0.3 * currentAngle;
+
+    // compute multi-turn
+    float delta = filteredAngle - lastAngle;
+    if(delta > 180.0f) delta -= 360.0f;
+    if(delta < -180.0f) delta += 360.0f;
+    countRev += delta/360.0f;
+    lastAngle = filteredAngle;
+    multiRevAngle = countRev * 360.0f + filteredAngle;
+    std::cout << "MultiRevAngle: " << multiRevAngle << "\n";
+
+    return multiRevAngle;
 }
 
-void Servo360::updatePIDWithFeedback(float dt) {
+void Servo360::updatePIDWithFeedback(float target, float dt) {
     float actual = readFeedbackAngle();
-
-    float error = targetAngle - actual;
-    // Xử lý wrap-around 0–360°
-    if (error > 180.0f) error -= 360.0f;
-    if (error < -180.0f) error += 360.0f;
+    // std::cout << "Actual angle: " << actual << "\n";
+    float error = target - actual;
 
     integral += error * dt;
     float derivative = (error - prevError) / dt;
@@ -80,16 +111,19 @@ void Servo360::updatePIDWithFeedback(float dt) {
     prevError = error;
 
     // giới hạn output vào [-1..1]
-    if (output > 1.0f) output = 1.0f;
-    if (output < -1.0f) output = -1.0f;
+    // std::cout << "Output before clamping: " << output << "\n";
+    output = std::clamp(output, -1.0f, 1.0f);
 
     // chuyển output PID → duty servo
-    float pulse_us = center_us + output * range_us;
+    float pulse_us = 1500.0f + output * 220.0f;
     float duty = pulse_us / 20000;
+    
     PWM_Bus::PWM_Out(duty);
 
-    std::cout << "[PID] target = " << targetAngle
+    std::cout << "[PID] target = " << target
               << "°, actual = " << actual
               << "°, err = " << error
               << ", out = " << output << std::endl;
 }
+
+

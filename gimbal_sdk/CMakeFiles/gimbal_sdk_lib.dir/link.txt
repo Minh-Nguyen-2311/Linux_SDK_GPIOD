@@ -1,0 +1,2 @@
+/usr/bin/ar qc libgimbal_sdk_lib.a CMakeFiles/gimbal_sdk_lib.dir/src/gimbal_controller.cpp.o
+/usr/bin/ranlib libgimbal_sdk_lib.a

@@ -32,98 +32,93 @@ float Servo360::readFeedbackAngle() {
     struct gpiod_line_event evt;
     struct timespec ts_rise1, ts_fall, ts_rise2;
     
-    //Wait for rising edge 1
-    while(true)
-    {
+    // rising edge 1
+    while(true) {
         if(gpiod_line_event_wait(m_pwm1, nullptr) != 1) continue;
-        if(gpiod_line_event_read(m_pwm1, &evt) == 0 && evt.event_type == GPIOD_LINE_EVENT_RISING_EDGE)
-        {
+        if(!gpiod_line_event_read(m_pwm1, &evt) && evt.event_type == GPIOD_LINE_EVENT_RISING_EDGE) {
             ts_rise1 = evt.ts;
             break;
         }
     }
 
-    //Wait for falling edge
-    while(true)
-    {
+    // falling edge
+    while(true) {
         if(gpiod_line_event_wait(m_pwm1, nullptr) != 1) continue;
-        if(gpiod_line_event_read(m_pwm1, &evt) == 0 && evt.event_type == GPIOD_LINE_EVENT_FALLING_EDGE)
-        {
+        if(!gpiod_line_event_read(m_pwm1, &evt) && evt.event_type == GPIOD_LINE_EVENT_FALLING_EDGE) {
             ts_fall = evt.ts;
             break;
         }
     }
 
-    //Wait for rising edge 1
-    while(true)
-    {
+    // rising edge 2
+    while(true) {
         if(gpiod_line_event_wait(m_pwm1, nullptr) != 1) continue;
-        if(gpiod_line_event_read(m_pwm1, &evt) == 0 && evt.event_type == GPIOD_LINE_EVENT_RISING_EDGE)
-        {
+        if(!gpiod_line_event_read(m_pwm1, &evt) && evt.event_type == GPIOD_LINE_EVENT_RISING_EDGE) {
             ts_rise2 = evt.ts;
             break;
         }
     }
 
-    double rise1 = ts_rise1.tv_sec + ts_rise1.tv_nsec/1e9;
-    
-    double rise2 = ts_rise2.tv_sec +ts_rise2.tv_nsec/1e9;
-
-    double fall = ts_fall.tv_sec +ts_fall.tv_nsec/1e9;
-
+    double rise1 = ts_rise1.tv_sec * 1e3 + ts_rise1.tv_nsec / 1e6;
+    double fall  = ts_fall .tv_sec * 1e3 + ts_fall .tv_nsec / 1e6;
+    double rise2 = ts_rise2.tv_sec * 1e3 + ts_rise2.tv_nsec / 1e6;
 
     double highTime = fall - rise1;
-    std::cout << "highTime: " << highTime << "\n";
-    double period = rise2 - rise1;
-    std::cout << "period: " << period << "\n";
+    highTime = std::clamp(highTime, MIN_T_HIGH_MS, MAX_T_HIGH_MS);
 
-    if(period <= 0) period = 1.0/910.0;
-    double duty = (highTime / period) * 100.0;
-    std::cout << "Duty: " << duty << "\n";
+    double cycleTime = rise2 - rise1;
+    cycleTime = std::clamp(cycleTime, MIN_FEEDBACK_MS, MAX_FEEDBACK_MS);
 
-    // map duty → angle
-    currentAngle = (float)((duty - 2.9f) * 360.0f/ (97.1f - 2.9f));
-    std::cout << "currentAngle: " << currentAngle << "\n";
-    
-    // low-pass filter
-    filteredAngle = 0.7 * filteredAngle + 0.3 * currentAngle;
+    double duty = (highTime / cycleTime) * 100.0;
+    duty = std::clamp(duty, MIN_DUTY, MAX_DUTY);
 
-    // compute multi-turn
+    // Correct angle mapping
+    currentAngle = (float)((duty - MIN_DUTY) * 360.0 / (MAX_DUTY - MIN_DUTY));
+
+    // Low-pass filter
+    filteredAngle = 0.9f * filteredAngle + 0.1f * currentAngle;
+
+    // Multi-turn tracking
     float delta = filteredAngle - lastAngle;
     if(delta > 180.0f) delta -= 360.0f;
     if(delta < -180.0f) delta += 360.0f;
-    countRev += delta/360.0f;
-    lastAngle = filteredAngle;
-    multiRevAngle = countRev * 360.0f + filteredAngle;
-    std::cout << "MultiRevAngle: " << multiRevAngle << "\n";
 
-    return multiRevAngle;
+    countRev += delta / 360.0f;
+    lastAngle = filteredAngle;
+
+    multiRevAngle = countRev * 360.0f + filteredAngle;
+
+    return filteredAngle; // <== quay về CHỈ góc 0..360 đã lọc
 }
 
 void Servo360::updatePIDWithFeedback(float target, float dt) {
-    float actual = readFeedbackAngle();
-    // std::cout << "Actual angle: " << actual << "\n";
-    float error = target - actual;
+    float angle = readFeedbackAngle();
+
+    float targetWrapped = fmod(target, 360.0f);
+    if (targetWrapped < 0) targetWrapped += 360.0f;
+
+    // wrap error to [-180..180]
+    float error = targetWrapped - angle;
+    if(error > 180.0f) error -= 360.0f;
+    if(error < -180.0f) error += 360.0f;
 
     integral += error * dt;
     float derivative = (error - prevError) / dt;
-    float output = Kp * error + Ki * integral + Kd * derivative;
     prevError = error;
 
-    // giới hạn output vào [-1..1]
-    // std::cout << "Output before clamping: " << output << "\n";
+    float output = Kp * error + Ki * integral + Kd * derivative;
     output = std::clamp(output, -1.0f, 1.0f);
 
-    // chuyển output PID → duty servo
     float pulse_us = 1500.0f + output * 220.0f;
-    float duty = pulse_us / 20000;
-    
+    float duty = pulse_us / 20000.0f;
+
     PWM_Bus::PWM_Out(duty);
 
-    std::cout << "[PID] target = " << target
-              << "°, actual = " << actual
-              << "°, err = " << error
-              << ", out = " << output << std::endl;
+    std::cout << "[PID] target=" << target
+              << " actual=" << angle
+              << " err=" << error
+              << " pulse_us=" << pulse_us
+              << std::endl;
 }
 
 

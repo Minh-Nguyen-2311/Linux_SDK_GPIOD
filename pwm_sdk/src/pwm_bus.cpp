@@ -33,7 +33,6 @@ bool PWM_Bus::init(const char* chipname,
     }
 
     pwm_out = gpiod_line_request_output(m_pwm0, "pwm_out", 1);
-    //pwm_in = gpiod_line_request_input(m_pwm1, "pwm_in");
     if(pwm_out < 0){
         std::cout << "PWM GPIO request output fail\n";
         return false;

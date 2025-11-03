@@ -30,8 +30,7 @@ pwm_sdk_exe: \
   /usr/lib/gcc/aarch64-linux-gnu/15/libgcc.a \
   /usr/lib/gcc/aarch64-linux-gnu/15/libgcc.a \
   /usr/lib/gcc/aarch64-linux-gnu/15/crtendS.o \
-  /usr/lib/gcc/aarch64-linux-gnu/15/../../../aarch64-linux-gnu/crtn.o \
-  /lib/aarch64-linux-gnu/libm.so.6
+  /usr/lib/gcc/aarch64-linux-gnu/15/../../../aarch64-linux-gnu/crtn.o
 
 /usr/lib/gcc/aarch64-linux-gnu/15/../../../aarch64-linux-gnu/Scrt1.o:
 
@@ -96,5 +95,3 @@ libpwm_sdk_lib.a:
 /usr/lib/gcc/aarch64-linux-gnu/15/crtendS.o:
 
 /usr/lib/gcc/aarch64-linux-gnu/15/../../../aarch64-linux-gnu/crtn.o:
-
-/lib/aarch64-linux-gnu/libm.so.6:

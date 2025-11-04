@@ -1,35 +1,35 @@
 #include "gimbal_controller.hpp"
+#include <thread>
 #include <iostream>
 
 int main()
 {
-    VisionPipeline vision;
     GimbalController gimbal;
-    if(!vision.init()){
-        std::cerr << "Failed to init vision pipeline\n";
-        return -1;
-    }
-    cv::Mat frame;
-    cv::namedWindow("Gimbal Vision", cv::WINDOW_AUTOSIZE);
-    gimbal.center();
+
+    std::thread t1(&GimbalController::visionThread, &gimbal);
+    std::thread t2(&GimbalController::gimbalThread, &gimbal);
+
+    std::cout << "Gimbal App starting ...\n";
+    cv::Mat localFrame;
 
     while(1)
     {
-        float x = -1, y = -1;
-        if(!vision.processFrame(x,y,frame)) continue;
-        if(x>0 && y>0)
         {
-            gimbal.track(x,y);
-            cv::circle(frame, cv::Point(x,y), 5,
-                        cv::Scalar(0,255,0), -1);
+            std::lock_guard<std::mutex> lock(gimbal.g_frame_mutex);
+            if(!gimbal.g_shared_frame.empty())
+                gimbal.g_shared_frame.copyTo(localFrame);
         }
-        cv::imshow("Gimbal Vision", frame);
-        if(cv::waitKey(10) == 27)
+
+        if(!localFrame.empty()) cv::imshow("Gimbal Vision", localFrame);
+
+        if(cv::waitKey(1) == 27)
         {
-            gimbal.center();
+            std::cout << "\n[INFO] Esc pressed, shutting down...\n";
+            gimbal.running.store(true);
             break;
         }
     }
-    cv::destroyAllWindows();
+    std::cout << "Exiting ...\n";
+
     return 0;
 }

@@ -393,4 +393,6 @@ CMakeFiles/gimbal_sdk_exe.dir/test/main.cpp.o: \
  /usr/local/include/opencv4/opencv2/video/background_segm.hpp \
  /home/minh/Downloads/gimbal_sdk/../vision_sdk/include/object_detector.hpp \
  /home/minh/Downloads/gimbal_sdk/../vision_sdk/include/object_tracker.hpp \
- /usr/local/include/opencv4/opencv2/tracking.hpp
+ /usr/local/include/opencv4/opencv2/tracking.hpp \
+ /usr/include/c++/15/thread /usr/include/c++/15/bits/std_thread.h \
+ /usr/include/c++/15/bits/this_thread_sleep.h /usr/include/c++/15/atomic

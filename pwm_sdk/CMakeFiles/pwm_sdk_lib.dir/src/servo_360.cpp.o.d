@@ -204,7 +204,9 @@ CMakeFiles/pwm_sdk_lib.dir/src/servo_360.cpp.o: \
  /usr/include/c++/15/tr1/riemann_zeta.tcc /usr/include/c++/15/thread \
  /usr/include/c++/15/bits/std_thread.h \
  /usr/include/c++/15/bits/unique_ptr.h \
- /usr/include/c++/15/bits/this_thread_sleep.h \
+ /usr/include/c++/15/bits/this_thread_sleep.h /usr/include/c++/15/atomic \
+ /usr/include/c++/15/bits/atomic_base.h \
+ /usr/include/c++/15/bits/atomic_lockfree_defines.h \
  /usr/include/c++/15/algorithm /usr/include/c++/15/bits/stl_algo.h \
  /usr/include/c++/15/bits/algorithmfwd.h \
  /usr/include/c++/15/bits/stl_heap.h \

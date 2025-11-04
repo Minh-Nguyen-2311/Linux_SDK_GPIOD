@@ -201,7 +201,4 @@ CMakeFiles/pwm_sdk_lib.dir/src/servo_180.cpp.o: \
  /usr/include/c++/15/tr1/modified_bessel_func.tcc \
  /usr/include/c++/15/tr1/poly_hermite.tcc \
  /usr/include/c++/15/tr1/poly_laguerre.tcc \
- /usr/include/c++/15/tr1/riemann_zeta.tcc /usr/include/c++/15/thread \
- /usr/include/c++/15/bits/std_thread.h \
- /usr/include/c++/15/bits/unique_ptr.h \
- /usr/include/c++/15/bits/this_thread_sleep.h
+ /usr/include/c++/15/tr1/riemann_zeta.tcc

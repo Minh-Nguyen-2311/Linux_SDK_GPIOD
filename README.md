@@ -1,6 +1,6 @@
-# Linux_SDK_GPIOD
+# Linux_SDK
 
-This repo is for my built Linux_SDK for peripheral devices using GPIOD v1.6.5 on Ubuntu 25.10.
+This repo is for my built Linux_SDK for peripheral devices using GPIOD v1.6.5 | pyserial v3.5.0 on Ubuntu 25.10.
 
 Instructions:
 1) Install GPIOD from official Linux repo:
